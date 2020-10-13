@@ -1,0 +1,283 @@
+package com.company;
+
+import com.sun.source.tree.WhileLoopTree;
+
+import javax.swing.plaf.IconUIResource;
+import java.sql.Struct;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.File;
+
+
+
+
+import java.io.IOException;
+
+
+//
+
+public class Main {
+    //requirement 1 main method
+    public static void main(String[] args) {
+        //create a new scanner to read the terminal
+        Scanner myScanner = new Scanner(System.in);
+
+        //String variables to hold name and year
+        String studentName="";
+        String studentYear="";
+
+        //double variable to hold value. -1 is outside the bounds and would indicate either bad data
+        //or an invalid entry
+        double gpa=-1;
+
+        //create string array to hold answers from the printQuestions function
+        String answers[];
+        answers = new String[7]; //limitations... review
+
+        //create a continue variable to see if the user still wants to answer questions
+        int cont = 1;
+
+        //do loop
+        do{
+            //try/catch will let us handle errors if the user enters a bad number (not 1-5)
+            try {
+                mainMenu(); //call our function to print the main menu
+
+                System.out.print("Please Enter Your Numeric Selection: "); //ask the user to enter their selection
+                //store the users selection as an int. Remember since we're encased in try/catch even if the user enters bad data
+                //it will be caught
+                cont = myScanner.nextInt();
+                //all arrays start at 0. Our numbers start at 1. This is why we subtract 1 from the users selection
+                //we also store our answers in an array
+                //answers[cont - 1] = printQuestion(cont, myScanner);
+                //switch and case can clean up long/messy ifs
+
+                Student Gorg = new Student(studentName, studentYear, gpa); //create the object
+
+                switch (cont) {
+                    case 1:
+                        System.out.println("Please enter a student name:");
+                        studentName = myScanner.next();
+                        Gorg.setName(studentName); //set function got name
+                        break;
+                    case 2:
+                        System.out.println("Please enter the academic year:");
+                        studentYear = myScanner.next();
+
+
+                        while (yearCheck(studentYear) != 1)  //checks input then sets student AC year. modified original check statement to return an int
+                        {
+                            System.out.println("Please enter the academic year:");
+                            studentYear = myScanner.next();
+                        }
+
+
+                        Gorg.setYear(studentName.toLowerCase());
+                        break;
+
+                    case 3:
+
+                        try {
+                            System.out.println("Please enter a gpa:");
+                            gpa = myScanner.nextDouble(); //handle the error if they don't provide a double
+                            System.out.println("here:"+ gpa);
+
+                        } catch (Exception ex) {
+                            System.out.println("here2:"+ gpa);
+                            System.out.println("Only double is a valid entry. Try again.");
+                            myScanner.next();
+                            System.out.println("Press Enter to Clear Terminal");
+                            myScanner.next();
+                            clearTer();
+                        }
+
+                        while(!checkGpa(gpa))  //checks input then sets student gpa. modified original check statement to return a bool, nested try catch blocks to catch for invalid input.
+                        {
+                            System.out.println("GPA appears to be outside of the limits of 0.0 and 4.0. Please Try Again");
+                            try {
+                                System.out.println("Please enter a gpa:");
+                                gpa = myScanner.nextDouble(); //handle the error if they don't provide a double
+                                System.out.println("here:"+ gpa);
+
+                            } catch (Exception ex) {
+                                System.out.println("here2:"+ gpa);
+                                System.out.println("Only double is a valid entry. Try again.");
+                                myScanner.next();
+                                System.out.println("Press Enter to Clear Terminal");
+                                myScanner.next();
+                                clearTer();
+                            }
+                        }
+                        Gorg.setGpa(gpa);
+                        break;
+
+                    case 4:
+                        Gorg.printStudent(); //calls print function in class
+                        clearTer();
+                        break;
+
+                }
+                //this catch will handle users sending non numeric text. As long as the user enters a number they'll either be asked
+                //a valid question or the menu will print it self out again and ask them again.
+            }catch (Exception ex){
+                System.out.println("Please enter numeric values between 1 and 5");
+                myScanner.nextLine();
+                System.out.println("Press Enter to Clear Terminal");
+                myScanner.nextLine();
+                clearTer();
+            }
+            //do while ensures our user is asked at least 1 time
+
+        }while(cont!=5);
+
+    }
+    //Check the data to determine if anything is missing or if any invalid selections were made.
+    public static void checkData(String name, String acYear, double gpa){
+        ArrayList<String> badData = new ArrayList<String>();
+        int missingData=0;
+
+        missingData = missingData(name,acYear,gpa);
+        //method 1 with ArrayList see commented out
+        badData.add(badAcdYearEntries(acYear));
+        badData.add(badGpa(gpa));
+        badData.removeAll(Collections.singleton(""));
+        //
+
+        //method 2 with independent variables
+        String badAy = badAcdYearEntries(acYear);
+        String badGpa = badGpa(gpa);
+        if(missingData>0){
+            return;
+        }else if(!badAy.isEmpty() || !badGpa.isEmpty()){
+            System.out.printf("%s%s\n",badAy,badGpa);
+        }else{
+            System.out.println("The students name is " + name);
+            System.out.println("The students academic year is " + acYear);
+            System.out.println("The students GPA is " + gpa);
+        }
+        /*
+        if(missingData>0){
+            return;
+        }else if(!badData.isEmpty()) {
+            System.out.println(badData);
+        }else{
+            System.out.println("The students name is " + name);
+            System.out.println("The students academic year is " + acYear);
+            System.out.println("The students GPA is " + gpa);
+        }*/
+
+    }
+
+    //check for empty selections extra credit 2 and 3
+    public static int missingData(String name, String acYear, double gpa) {
+        String[] questions = {"Students Name", "Students Academic Year", "Students GPA"};
+        int countOfMissing = 0;
+        if (name.isEmpty()) {
+            System.out.println("It looks like you left " + questions[0] + " blank");
+            countOfMissing++;
+        }
+        if (acYear.isEmpty()) {
+            System.out.println("It looks like you left " + questions[1] + " blank");
+            countOfMissing++;
+        }
+        if (gpa < 0){
+            System.out.println("It looks like you left " + questions[2] + " blank");
+            countOfMissing++;
+        }
+        return countOfMissing;
+    }
+    //required method to check academic years
+    public static String badAcdYearEntries(String acdmcYear){
+        ArrayList<String> validAys = new ArrayList<String>();
+        validAys.add("freshmen");
+        validAys.add("sophomore");
+        validAys.add("junior");
+        validAys.add("senior");
+
+
+        if(!validAys.contains(acdmcYear)){
+            return "It appears you've entered an invalid Academic Year.";
+        }
+        return "";
+    }
+
+    public static int yearCheck(String acdmcYear){ // checks for the academic year, returns either a 0 or 1 for false or true respectively
+        ArrayList<String> validAys = new ArrayList<String>();
+        validAys.add("freshman");
+        validAys.add("sophomore");
+        validAys.add("junior");
+        validAys.add("senior");
+
+
+        if(!validAys.contains(acdmcYear)){
+            System.out.println("It appears you've entered an invalid Academic Year.");
+            return 0;
+        }
+        return 1;
+    }
+
+    //required method to check GPA
+    public static String badGpa(double gpa){
+        double lower = 0.0;
+        double upper = 4.0;
+        if(gpa< lower || gpa > upper){
+            return "GPA appears to be outside of the limits of 0.0 and 4.0. Please Try Again";
+        }
+        return "";
+    }
+
+
+    public static boolean checkGpa(double gpa){
+        double lower = 0.0;
+        double upper = 4.0;
+        if(gpa< lower || gpa > upper){
+
+            return false;
+        }
+        return true;
+    }
+
+    //extra credit option 1
+    public static void clearTer(){
+        System.out.println("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    //optional not required style points cuts down on the amount of code
+    private static String printQuestion(int arryPoist, Scanner myScan){
+        String retValue;
+        if(arryPoist >3){
+            return "exit";
+        }
+        String[] questions = {"Please Enter Students Name: ","Please Enter Students Academic Year: ","Please Enter Students GPA: "};
+        System.out.print(questions[arryPoist-1]);
+        retValue = myScan.next();
+        return retValue;
+    }
+
+    //extra credit option 2
+    private static int allAnswered(String name, String AcaYear, double GPA){
+        if(name.isEmpty() || AcaYear.isEmpty() || GPA < 0){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    //function to concantonate a csv string
+    public static String CatFusion (String name, String Year, double gpa){ //simple function to create a csv out of the 3 existing variables
+        return name + "," + Year + "," + gpa;
+    }
+
+    //required method 2 print main menu
+    private static void mainMenu(){
+        System.out.println("1. Enter Students Name");
+        System.out.println("2. Enter Students Academic Year");
+        System.out.println("3. Enter Students GPA");
+        System.out.println("4. Display Students Info");
+        System.out.println("5. Exit");
+
+    }
+}
