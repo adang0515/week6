@@ -1,0 +1,59 @@
+package com.company;
+
+public class Student {
+    private double gpa;
+    private String Name;
+    private String year;
+
+    public void setGpa(double input)
+    {
+        gpa = input;
+    } //set functions
+
+    public void setName(String input)
+    {
+        Name = input;
+    }
+
+    public void setYear(String input)
+    {
+        year = input;
+    }
+
+    public String getName()
+    {
+        return Name;
+    } //get functions
+
+    public String getYear()
+    {
+        return year;
+    }
+
+    public double getGpa()
+    {
+        return gpa;
+    }
+
+    public void printStudent() //simple print function
+    {
+        System.out.println("Name: " + getName());
+        System.out.println("Year: " + getYear());
+        System.out.println("GPA: " + getGpa());
+    }
+
+    public Student(String Name, String year, double Gpa) //constructor
+    {
+        setGpa(Gpa);
+        setName(Name);
+        setYear(year);
+    }
+
+    public Student() //default constructor.
+    {
+
+    }
+
+
+
+}
